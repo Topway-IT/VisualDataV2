@@ -1,0 +1,11 @@
+{
+	"@metadata": {
+		"authors": []
+	},
+
+	"visualdata-extension-desc": "A label message",
+	"visualdata-slot-label-jsondata": "A label message",
+
+	"apierror-visualdata-permissions-error": "A label message",
+	"visualdata-sidepanel-section": "A label message"
+}

@@ -1,0 +1,194 @@
+{
+	"name": "VisualData",
+	"author": "thomas-topway-it",
+	"version": "2.0",
+	"url": "https://www.mediawiki.org/wiki/Extension:VisualData",
+	"descriptionmsg": "VisualData-extension-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "parserhook",
+	"requires": {
+		"MediaWiki": ">= 1.39.13",
+		"extensions": {
+			"JsonForms": ">= 1.2.3"
+		}
+	},
+	"MessagesDirs": {
+		"VisualData": [
+			"i18n"
+		]
+	},
+	"callback": "VisualDataHooks::initExtension",
+	"HookHandlers": {
+		"main": {
+			"class": "VisualDataHooks"
+		},
+		"visualdata_searchdata": {
+			"class": "VisualDataDataForSearchIndex",
+			"services": [
+				"ContentHandlerFactory"
+			]
+		}
+	},
+	"ContentHandlers": {
+	},
+	"Actions": {
+	},
+	"AutoloadClasses": {
+		"VisualData": "includes/VisualData.php",
+		"VisualDataHooks": "includes/VisualDataHooks.php",
+		"SpecialVisualDataManage": "includes/specials/SpecialVisualDataManage.php"
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\VisualData\\": "includes/classes/",
+		"MediaWiki\\Extension\\VisualData\\Aliases\\": "includes/aliases/",
+		"MediaWiki\\Extension\\VisualData\\Specials\\": "includes/specials/BrowseData/"
+	},
+	"ExtensionMessagesFiles": {
+		"VisualDataAlias": "VisualData.alias.php",
+		"VisualDataMagic": "VisualDataMagic.i18n.magic.php"
+	},
+	"Hooks": {
+		"LoadExtensionSchemaUpdates": "main",
+		"SkinBuildSidebar": "main",
+		"OutputPageParserOutput": "main",
+		"JsonForms::FormSubmitBeforeProcess": "VisualDataHooks::onFormSubmitBeforeProcess",
+		"JsonForms::FormSubmitBeforeSave": "VisualDataHooks::onFormSubmitBeforeSave",
+		"JsonForms::FormSubmitSuccess": "VisualDataHooks::onJsonFormsFormSubmitSuccess"
+	},
+	"SpecialPages": {
+		"VisualDataManage": "SpecialVisualDataManage",
+		"VisualDataManageQueries": "MediaWiki\\Extension\\VisualData\\Specials\\ManageQueries"
+	},
+	"APIModules": {
+	},
+	"namespaces": [
+		{
+			"id": 2230,
+			"constant": "NS_VISUALDATAQUERY",
+			"name": "VisualDataQuery",
+			"defaultcontentmodel": "json",
+			"content": true,
+			"subpages": false
+		},
+		{
+			"id": 2231,
+			"constant": "NS_VISUALDATAQUERY_TALK",
+			"name": "VisualDataQUERYTalk"
+		}
+	],
+	"TrackingCategories": [
+	],
+	"GroupPermissions": {
+		"sysop": {
+			"visualdata-caneditdata": true,
+			"visualdata-canmanagequeries": true
+		},
+		"bureaucrat": {
+			"visualdata-caneditdata": true,
+			"visualdata-canmanagequeries": true
+		},
+		"visualdata-admin": {
+			"visualdata-caneditdata": true,
+			"visualdata-canmanagequeries": true
+		},
+		"visualdata-editor": {
+			"visualdata-caneditdata": true,
+			"visualdata-canmanagequeries": false
+		},
+		"*": {
+			"visualdata-caneditdata": true,
+			"visualdata-canmanagequeries": false
+		}
+	},
+	"AddGroups": {
+		"visualdata-admin": [
+			"visualdata-admin",
+			"visualdata-editor"
+		]
+	},
+	"RemoveGroups": {
+		"visualdata-admin": [
+			"visualdata-admin",
+			"visualdata-editor"
+		]
+	},
+	"AvailableRights": [
+		"visualdata-canmanagequeries"
+	],
+	"JobClasses": {
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "resources",
+		"remoteExtPath": "VisualData/resources"
+	},
+	"ResourceModules": {
+		"ext.VisualData.Common": {
+			"position": "top",
+			"scripts": [
+			],
+			"styles": [
+				"style.css"
+			],
+			"dependencies": [
+			],
+			"messages": [
+			]
+		},
+		"ext.VisualData.AskQuery": {
+			"position": "top",
+			"localBasePath": "resources",
+			"remoteExtPath": "WebPubManager/resources",
+			"scripts": [
+				"SchemaPaths.js",
+				"EnumProviders.js",
+				"VisualData.js"
+			],
+			"styles": [
+			],
+			"dependencies": ["ext.JsonForms.base"],
+			"messages": [
+			]
+		}
+	},
+	"config": {
+		"VisualDataDebugPath": {
+			"value": "VisualDataDebug.log"
+		},
+		"VisualDataDisableSidebarLink": {
+			"value": false
+		},
+		"VisualDataDisableSlotsNavigation": {
+			"value": false
+		},
+		"VisualDataDisableVersionCheck": {
+			"value": false
+		},
+		"VisualDataCreateJobsWarningLimit": {
+			"value": 0
+		},
+		"VisualDataEditDataNamespaces": {
+			"value": [ 0, 4, 2226, 2230 ],
+			"merge_strategy": "provide_default"
+		},
+		"VisualDataTrackingCategoryJsonData": {
+			"value": false
+		},
+		"VisualDataTrackingCategoryForms": {
+			"value": true
+		},
+		"VisualDataTrackingCategoryQueries": {
+			"value": true
+		},
+		"VisualDataTrackingCategoryButtons": {
+			"value": true
+		},
+		"VisualDataMaptilerApiKey": {
+			"value": null
+		},
+		"VisualDataQueryProcessorPrintoutsLimit": {
+			"value": 5
+		}
+	},
+	"load_composer_autoloader": true,
+	"manifest_version": 2
+}

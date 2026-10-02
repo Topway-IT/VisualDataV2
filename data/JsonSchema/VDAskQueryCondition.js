@@ -1,0 +1,195 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://wikisphere.org/wiki/JsonSchema:VDAskQuery",
+	"type": "object",
+	"x-layout": "paged",
+	"properties": {
+		"mode": {
+			"type": "string",
+			"title": "Condition mode",
+			"description": "Choose how conditions are combined.",
+			"enum": [
+				"simple",
+				"compound"
+			],
+			"x-enum-titles": [
+				"Simple AND conditions",
+				"Compound conditions (AND of ORs)"
+			],
+			"default": "simple"
+		}
+	},
+	"oneOf": [
+		{
+			"title": "Simple AND conditions",
+			"properties": {
+				"mode": {
+					"const": "simple"
+				},
+				"conditions": {
+					"type": "array",
+					"description": "Flat list of conditions, all joined with AND.",
+					"items": {
+						"$ref": "#/definitions/condition"
+					},
+					"minItems": 1
+				}
+			},
+			"required": [
+				"mode",
+				"conditions"
+			]
+		},
+		{
+			"title": "Compound conditions (AND of ORs)",
+			"properties": {
+				"mode": {
+					"const": "compound"
+				},
+				"conditions": {
+					"type": "array",
+					"description": "Array of AND groups. All groups must match.",
+					"items": {
+						"$ref": "#/definitions/andGroup"
+					},
+					"minItems": 1
+				}
+			},
+			"required": [
+				"mode",
+				"conditions"
+			]
+		}
+	],
+	"definitions": {
+		"andGroup": {
+			"title": "AND Group",
+			"type": "object",
+			"description": "A group of conditions joined with OR internally.",
+			"properties": {
+				"or": {
+					"type": "array",
+					"description": "Atomic conditions joined with OR (||).",
+					"items": {
+						"$ref": "#/definitions/condition"
+					},
+					"minItems": 1
+				}
+			},
+			"required": [
+				"or"
+			]
+		},
+		"condition": {
+			"type": "object",
+			"properties": {
+				"property": {
+					"type": "string",
+					"x-required": false,
+					"x-format-type": "custom",
+					"x-format": "text",
+					"x-input": "OO.ui.DropdownInputWidget",
+					"x-input-config": {},
+					"x-enum-provider": "VDConditionsProps",
+					"x-watch": [
+						"root.schema"
+					]
+				},
+				"comparator": {
+					"type": "string",
+					"x-required": false,
+					"x-format-type": "custom",
+					"x-format": "text",
+					"x-input": "OO.ui.DropdownInputWidget",
+					"x-input-config": {},
+					"x-enum-provider": "VDConditionsComparator",
+					"x-watch": [
+						"property"
+					]
+				},
+				"types": {
+					"type": "array",
+					"items": {
+						"x-input": "OO.ui.TagMultiselectWidget",
+						"type": "string"
+					},
+					"readOnly": true,
+					"x-runtime-only": true,
+					"x-hidden_": true
+				},
+				"types_string": {
+					"type": "string",
+					"readOnly": true,
+					"x-runtime-only": true,
+					"x-hidden": true
+				},
+				"value": {
+					"x-watch": "types_string",
+					"type": "string",
+					"links": [
+						{
+							"rel": "describedBy",
+							"href": "#/definitions/value_{{types_string}}"
+						}
+					],
+					"x-dependency": {
+						"and": [
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "+"
+							},
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "-"
+							}
+						]
+					}
+				}
+			},
+			"x-name": "VDAskQuery/Condition_f",
+			"required": [],
+			"x-layout": "default"
+		},
+		"value_string": {
+			"description": "",
+			"type": "string"
+		},
+		"value_datetime": {
+			"description": "",
+			"type": "string",
+			"x-format": "datetime-local"
+		},
+		"value_time": {
+			"description": "",
+			"type": "string",
+			"x-format": "time"
+		},
+		"value_date": {
+			"description": "",
+			"type": "string",
+			"x-format": "date"
+		},
+		"value_integer": {
+			"description": "",
+			"type": "integer"
+		},
+		"value_number": {
+			"description": "",
+			"type": "number"
+		},
+		"value_boolean": {
+			"description": "",
+			"type": "boolean"
+		},
+		"value_mixed": {
+			"description": "",
+			"type": [
+				"string",
+				"number"
+			]
+		}
+	}
+}
+

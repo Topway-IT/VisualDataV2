@@ -1,0 +1,23 @@
+{
+	"@metadata": {
+		"authors": [
+			"thomas-topway-it"
+		]
+	},
+	"visualdata-extension-desc": "VisualData is a full-fledged metadata management framework based on json-schema able to easily record, organize and query collection of data on your wiki.",
+
+	"apierror-visualdata-permissions-error": "Permissions error",
+	"visualdata-sidepanel-section": "VisualData",
+
+	"visualdatabrowsequeries": "Manage queries",
+	"visualdatabrowsedata": "Manage data",
+	"visualdatabrowsedata-topnav": "'''navigation'''",
+	"visualdata-sidepanel-managequeries": "Manage queries",
+	"visualdata-special-browse-queries-description": "",
+	"visualdata-manage-form-button-add-query": "Add query",
+	"visualdata-special-browse-form-search-legend": "Search query",
+	"visualdata-special-browse-form-search-schema-label": "query name",
+	"visualdata-special-browse-form-search-submit": "submit",
+	"visualdata-special-manage-returnlink": "'''← [[$1|Back]]'''",
+	"visualdata-special-manage-schemas-schemaname": "'''Editing [[$1]]'''"
+}
