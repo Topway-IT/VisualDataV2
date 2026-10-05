@@ -94,6 +94,25 @@ class VisualDataHooks implements
 	}
 
 	/**
+	 * @param OutputPage $outputPage
+	 * @param Skin $skin
+	 * @return void
+	 */
+	public static function onBeforePageDisplay(
+		OutputPage $outputPage,
+		Skin $skin,
+	) {
+		$title = RequestContext::getMain()->getTitle();
+		if ( !$title ) {
+			return;
+		}
+
+		if ( $title && $title->isSpecial( 'JsonFormsManage' ) ) {
+			$outputPage->addModules( 'ext.VisualData.SchemaBuilder' );
+		}
+	}
+
+	/**
 	 * @param Skin $skin
 	 * @param array &$bar
 	 * @return void

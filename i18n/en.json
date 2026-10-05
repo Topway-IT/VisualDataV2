@@ -9,6 +9,8 @@
 	"apierror-visualdata-permissions-error": "Permissions error",
 	"visualdata-sidepanel-section": "VisualData",
 
+	"specialpages-group-visualdata": "VisualData",
+	"visualdatamanagequeries": "Manage Queries",
 	"visualdatabrowsequeries": "Manage queries",
 	"visualdatabrowsedata": "Manage data",
 	"visualdatabrowsedata-topnav": "'''navigation'''",
@@ -19,5 +21,6 @@
 	"visualdata-special-browse-form-search-schema-label": "query name",
 	"visualdata-special-browse-form-search-submit": "submit",
 	"visualdata-special-manage-returnlink": "'''← [[$1|Back]]'''",
-	"visualdata-special-manage-schemas-schemaname": "'''Editing [[$1]]'''"
+	"visualdata-special-manage-schemas-schemaname": "'''Editing [[$1]]'''",
+	"visualdata-special-browse-table-empty": "no items"
 }

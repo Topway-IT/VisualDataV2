@@ -11,5 +11,5 @@ $specialPageAliases = [];
  * English
  */
 $specialPageAliases['en'] = [
-	'VisualDataManage' => [ 'VisualDataManage' ],
+	'VisualDataManage' => [ 'VisualDataManage' ]
 ];

@@ -190,7 +190,7 @@ class SpecialVisualDataManage extends SpecialPage {
 
 				$formDescriptor->pagename_formula = 'VisualDataQuery:<name>';
 				$innerSchema = \JsonForms::getSourceSchema(
-					'VDAskQuery',
+					'VisualData/AskQuery',
 					'JsonSchema',
 				);
 
@@ -235,7 +235,7 @@ class SpecialVisualDataManage extends SpecialPage {
 			case 'edit':
 				$formData = new stdClass();
 				$formData->schema = $jsonForm;
-				$formData->schemaName = 'VDAskQuery';
+				$formData->schemaName = 'VisualData/AskQuery';
 				$formDescriptor->inline_css = 'width:calc(100% - 24px); min-width: 0';
 
 				$formDescriptor->editor_options->debug = false;

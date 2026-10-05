@@ -1,0 +1,149 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "http://127.0.0.1/mediawiki-1.44.0/index.php/JsonSchema:VisualData/AskQuery",
+	"type": "object",
+	"title": "VisualData Query builder",
+	"x-default-properties": [
+		"schema",
+		"query",
+		"limit",
+		"format",
+		"printouts"
+	],
+	"properties": {
+		"name": {
+			"type": "string",
+			"description": "Query name",
+			"minLength": 1
+		},
+		"schema": {
+			"type": "string",
+			"title": "schema",
+			"x-enum-provider": "jsonSchemas",
+			"x-required": true,
+			"x-format-type": "custom",
+			"x-format": "text",
+			"x-input": "OO.ui.TextInputWidget",
+			"default": ""
+		},
+		"query": {
+			"oneOf": [
+				{
+					"title": "Condition",
+					"$ref": "JsonSchema:VisualData/AskQueryCondition",
+					"x-collapsible": true,
+					"type": "array",
+					"x-required": false,
+					"x-layout": "default",
+					"items": {
+						"type": "object",
+						"x-required": false,
+						"x-layout": "default"
+					}
+				},
+				{
+					"title": "page title",
+					"type": "string",
+					"description": "can be wikitext",
+					"x-input": "OO.ui.TextInputWidget",
+					"x-required": false,
+					"x-format-type": "custom",
+					"x-format": "text"
+				},
+				{
+					"title": "pageid",
+					"type": "integer",
+					"x-required": false,
+					"x-format": "number",
+					"x-input": "OO.ui.NumberInputWidget"
+				}
+			],
+			"type": "string",
+			"x-required": false,
+			"x-format-type": "custom",
+			"x-format": "text",
+			"x-input": "OO.ui.TextInputWidget"
+		},
+		"limit": {
+			"type": "integer",
+			"default": 100,
+			"examples": [
+				"visualdata-parserfunction-query-limit-example"
+			],
+			"x-required": false,
+			"x-format": "number",
+			"x-input": "OO.ui.NumberInputWidget"
+		},
+		"offset": {
+			"type": "integer",
+			"default": 0,
+			"examples": [
+				"visualdata-parserfunction-query-offset-example"
+			],
+			"x-required": false,
+			"x-format": "number",
+			"x-input": "OO.ui.NumberInputWidget"
+		},
+		"categories": {
+			"type": "boolean",
+			"default": false,
+			"examples": [
+				"visualdata-parserfunction-query-categories-example"
+			],
+			"x-required": false,
+			"x-input": "OO.ui.ToggleSwitchWidget"
+		},
+		"order": {
+			"type": "string",
+			"x-required": false,
+			"x-format-type": "custom",
+			"x-format": "text",
+			"x-input": "OO.ui.TextInputWidget"
+		},
+		"format": {
+			"type": "string",
+			"enum": [
+				"datatables",
+				"print",
+				"map",
+				"calendar",
+				"json"
+			],
+			"x-required": true,
+			"x-format-type": "custom",
+			"x-format": "text",
+			"x-input": "OO.ui.TextInputWidget"
+		},
+		"printouts": {
+			"type": "array",
+			"x-watch": [
+				"schema"
+			],
+			"items": {
+				"type": "string",
+				"x-required": false,
+				"x-format-type": "custom",
+				"x-format": "text",
+				"x-input": "OO.ui.MenuTagMultiselectWidget",
+				"x-enum-provider": "VDConditionsProps"
+			},
+			"x-required": false,
+			"x-layout": "multiselect"
+		},
+		"debug": {
+			"type": "boolean",
+			"default": false,
+			"x-required": false,
+			"x-input": "OO.ui.ToggleSwitchWidget"
+		}
+	},
+	"required": [
+		"schema",
+		"format",
+		"name"
+	],
+	"x-name": "VDAskQuery",
+	"x-layout": "default",
+	"x-no-title": true
+}
+

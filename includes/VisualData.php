@@ -76,7 +76,7 @@ class VisualData {
 		$errorMessage = null;
 
 		$formSchema = JsonForms::getSourceSchema(
-			'VDAskQuery',
+			'VisualData/AskQuery',
 			'JsonSchema',
 		);
 

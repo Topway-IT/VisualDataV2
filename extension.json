@@ -1,7 +1,7 @@
 {
 	"name": "VisualData",
 	"author": "thomas-topway-it",
-	"version": "2.0",
+	"version": "2.0.1",
 	"url": "https://www.mediawiki.org/wiki/Extension:VisualData",
 	"descriptionmsg": "VisualData-extension-desc",
 	"license-name": "GPL-2.0-or-later",
@@ -41,7 +41,7 @@
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\VisualData\\": "includes/classes/",
 		"MediaWiki\\Extension\\VisualData\\Aliases\\": "includes/aliases/",
-		"MediaWiki\\Extension\\VisualData\\Specials\\": "includes/specials/BrowseData/"
+		"MediaWiki\\Extension\\VisualData\\Specials\\": "includes/specials/"
 	},
 	"ExtensionMessagesFiles": {
 		"VisualDataAlias": "VisualData.alias.php",
@@ -50,6 +50,7 @@
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "main",
 		"SkinBuildSidebar": "main",
+		"BeforePageDisplay": "main",
 		"OutputPageParserOutput": "main",
 		"JsonForms::FormSubmitBeforeProcess": "VisualDataHooks::onFormSubmitBeforeProcess",
 		"JsonForms::FormSubmitBeforeSave": "VisualDataHooks::onFormSubmitBeforeSave",
@@ -137,8 +138,25 @@
 		"ext.VisualData.AskQuery": {
 			"position": "top",
 			"localBasePath": "resources",
-			"remoteExtPath": "WebPubManager/resources",
+			"remoteExtPath": "VisualData/resources",
 			"scripts": [
+				"Utilities.js",
+				"SchemaPaths.js",
+				"EnumProviders.js",
+				"VisualData.js"
+			],
+			"styles": [
+			],
+			"dependencies": ["ext.JsonForms.base"],
+			"messages": [
+			]
+		},
+		"ext.VisualData.SchemaBuilder": {
+			"position": "top",
+			"localBasePath": "resources",
+			"remoteExtPath": "VisualData/resources",
+			"scripts": [
+				"Utilities.js",
 				"SchemaPaths.js",
 				"EnumProviders.js",
 				"VisualData.js"

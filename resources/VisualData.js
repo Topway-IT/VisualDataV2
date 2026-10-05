@@ -38,17 +38,72 @@ VisualData.prototype.onInitialized = async function (
 	console.log('onInitialized eventData', eventData);
 
 	//onInitialized.editor.schema.
-	const schemaId = editor.schema.$id.split('JsonSchema:')[1];
+
+	const schemaId = jsonFormsInstance.parseSchemaId(editor.schema.$id);
 
 	if (schemaId === 'VDAskQuery') {
-		
 	}
 };
 
 VisualData.prototype.initialize = async function () {
 	const enumProviders = new VisualData.EnumProviders();
-	JsonForms.prototype.registerEnumProvider.call( this, 'VDConditionsProps', enumProviders.VDConditionsProps );
-	JsonForms.prototype.registerEnumProvider.call( this, 'VDConditionsComparator', enumProviders.VDConditionsComparator );
+	JsonForms.prototype.registerEnumProvider.call(
+		this,
+		'VDConditionsProps',
+		enumProviders.VDConditionsProps,
+	);
+	JsonForms.prototype.registerEnumProvider.call(
+		this,
+		'VDConditionsComparator',
+		enumProviders.VDConditionsComparator,
+	);
+
+	JsonForms.prototype.preprocessSchema = (editor, schema) => {
+		console.log('editor', editor);
+		console.log('schema', schema);
+
+		const jsonFormsInstance = editor.jsonFormsInstance;
+
+		if (jsonFormsInstance.parseSchemaId(schema.$id) === 'MetaSchema') {
+			console.log('preprocessSchema', schema);
+
+			let path = [
+				'definitions',
+				'string',
+				'properties',
+				'x-enum-provider',
+				'enum',
+			];
+			let value = JsonForms.Utilities.getNestedProp(path, schema);
+			value.push('VisualData');
+
+			VisualData.Utilities.setNestedProp(path, schema, value);
+
+			path = [
+				'definitions',
+				'stringOptions',
+				'properties',
+				'x-autocomplete-provider',
+				'enum',
+			];
+			value = JsonForms.Utilities.getNestedProp(path, schema);
+			value.push('VisualData');
+			VisualData.Utilities.setNestedProp(path, schema, value);
+
+			path = [
+				'definitions',
+				'stringOptionsMultiselect',
+				'properties',
+				'x-autocomplete-provider',
+				'enum',
+			];
+			value = JsonForms.Utilities.getNestedProp(path, schema);
+			value.push('VisualData');
+			VisualData.Utilities.setNestedProp(path, schema, value);
+		}
+
+		return schema;
+	};
 };
 
 (function ($) {

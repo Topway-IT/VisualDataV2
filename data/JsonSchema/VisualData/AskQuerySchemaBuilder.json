@@ -1,21 +1,15 @@
 {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$id": "http://127.0.0.1/mediawiki-1.44.0/index.php/JsonSchema:VDAskQuery",
+	"$id": "http://127.0.0.1/mediawiki-1.44.0/index.php/JsonSchema:VisualData/AskQuerySchemaBuilder",
 	"type": "object",
 	"title": "VisualData Query builder",
 	"x-default-properties": [
 		"schema",
 		"query",
 		"limit",
-		"format",
 		"printouts"
 	],
 	"properties": {
-		"name": {
-			"type": "string",
-			"description": "Query name",
-			"minLength": 1
-		},
 		"schema": {
 			"type": "string",
 			"title": "schema",
@@ -30,7 +24,7 @@
 			"oneOf": [
 				{
 					"title": "Condition",
-					"$ref": "JsonSchema:VDAskQueryCondition",
+					"$ref": "JsonSchema:VisualData/AskQueryConditionSchemaBuilder",
 					"x-collapsible": true,
 					"type": "array",
 					"x-required": false,
@@ -74,42 +68,9 @@
 			"x-format": "number",
 			"x-input": "OO.ui.NumberInputWidget"
 		},
-		"offset": {
-			"type": "integer",
-			"default": 0,
-			"examples": [
-				"visualdata-parserfunction-query-offset-example"
-			],
-			"x-required": false,
-			"x-format": "number",
-			"x-input": "OO.ui.NumberInputWidget"
-		},
-		"categories": {
-			"type": "boolean",
-			"default": false,
-			"examples": [
-				"visualdata-parserfunction-query-categories-example"
-			],
-			"x-required": false,
-			"x-input": "OO.ui.ToggleSwitchWidget"
-		},
 		"order": {
 			"type": "string",
 			"x-required": false,
-			"x-format-type": "custom",
-			"x-format": "text",
-			"x-input": "OO.ui.TextInputWidget"
-		},
-		"format": {
-			"type": "string",
-			"enum": [
-				"datatables",
-				"print",
-				"map",
-				"calendar",
-				"json"
-			],
-			"x-required": true,
 			"x-format-type": "custom",
 			"x-format": "text",
 			"x-input": "OO.ui.TextInputWidget"
@@ -142,7 +103,6 @@
 		"format",
 		"name"
 	],
-	"x-name": "VDAskQuery",
 	"x-layout": "default",
 	"x-no-title": true
 }

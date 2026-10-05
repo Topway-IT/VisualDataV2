@@ -1,0 +1,6 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://wikisphere.org/wiki/JsonSchema:SchemaBuilder/EnumAutocompleteConfig/VisualData",
+	"type": "object",
+	"$ref": "JsonSchema:VisualData/AskQuerySchemaBuilder"
+}

@@ -12,15 +12,16 @@
 			source: async (jseditor, { item, watched }) => {
 				const jsonForm = jseditor.jsoneditor.jsonFormsInstance;
 
-				console.log('VDConditionsProps');
-				console.log('VDConditionsProps item', item);
+				// console.log('VDConditionsProps item', item);
 				// console.log('watched', watched);
 				// console.log('jseditor', jseditor);
 
 				const schemaValue = watched['root.schema'] || watched['schema'];
 
+				console.log('VDConditionsProps property',watched );
+				
 				if (!schemaValue) {
-					return [];
+					return null;
 				}
 
 				const pageTitle = 'JsonSchema:' + schemaValue;
@@ -106,19 +107,18 @@
 		return {
 			source: (jseditor, { item, watched }) => {
 			
-			
 				console.log('VDConditionsComparator comparator', watched);
-				console.log('watched comparator', watched);
+				// console.log('watched comparator', watched);
 				if (!watched['property']) {
-					return [];
+					return null;
 				}
-				console.log(
-					'jseditor.VDSchemaPaths',
-					jseditor.jsoneditor.VDSchemaPaths,
-				);
+				// console.log(
+				// 	'jseditor.VDSchemaPaths',
+				// 	jseditor.jsoneditor.VDSchemaPaths,
+				// );
 
 				if (!jseditor.jsoneditor.VDSchemaPaths) {
-					return [];
+					return null;
 				}
 
 				const jsonPaths = getKeysByValue(
@@ -126,7 +126,7 @@
 					watched['property'],
 				);
 
-				console.log('comparator jsonPaths', jsonPaths);
+				// console.log('comparator jsonPaths', jsonPaths);
 
 				const types = new Set();
 
@@ -157,7 +157,7 @@
 				}
 
 				const typeList = [...types]; // e.g. ['string', 'null']
-				console.log('comparator typeList', typeList);
+				// console.log('comparator typeList', typeList);
 
 				const typesEditor = jseditor.jsoneditor.getEditor([
 					...jseditor.path.slice(0, -1),
