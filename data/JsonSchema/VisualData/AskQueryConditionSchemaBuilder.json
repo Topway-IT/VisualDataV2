@@ -8,7 +8,10 @@
 			"type": "string",
 			"title": "Condition mode",
 			"description": "Choose how conditions are combined.",
-			"enum": ["simple", "compound"],
+			"enum": [
+				"simple",
+				"compound"
+			],
 			"x-enum-titles": [
 				"Simple AND conditions",
 				"Compound conditions (AND of ORs)"
@@ -32,7 +35,10 @@
 					"minItems": 1
 				}
 			},
-			"required": ["mode", "conditions"]
+			"required": [
+				"mode",
+				"conditions"
+			]
 		},
 		{
 			"title": "Compound conditions (AND of ORs)",
@@ -49,7 +55,10 @@
 					"minItems": 1
 				}
 			},
-			"required": ["mode", "conditions"]
+			"required": [
+				"mode",
+				"conditions"
+			]
 		}
 	],
 	"definitions": {
@@ -67,7 +76,9 @@
 					"minItems": 1
 				}
 			},
-			"required": ["or"]
+			"required": [
+				"or"
+			]
 		},
 		"condition": {
 			"type": "object",
@@ -80,7 +91,7 @@
 					"x-input": "OO.ui.DropdownInputWidget",
 					"x-input-config": {},
 					"x-enum-provider": "VDConditionsProps",
-					"x-watch": ["root.schema"]
+					"x-watch": "schema"
 				},
 				"comparator": {
 					"type": "string",
@@ -90,7 +101,7 @@
 					"x-input": "OO.ui.DropdownInputWidget",
 					"x-input-config": {},
 					"x-enum-provider": "VDConditionsComparator",
-					"x-watch": ["property"]
+					"x-watch": "property"
 				},
 				"types": {
 					"type": "array",
@@ -108,40 +119,111 @@
 					"x-runtime-only": true,
 					"x-hidden": true
 				},
-				"value": {
-					"oneOf": [
-						{
-							"type": "string",
-							"description": "path"
-						},
-						{
-							"x-watch": "types_string",
-							"type": "string",
-							"links": [
-								{
-									"rel": "describedBy",
-									"href": "#/definitions/value_{{types_string}}"
-								}
-							],
-							"x-dependency": {
-								"and": [
-									{
-										"path": "comparator",
-										"op": "!=",
-										"value": "+"
-									},
-									{
-										"path": "comparator",
-										"op": "!=",
-										"value": "-"
-									}
-								]
+				"subject": {
+					"type": "string",
+					"enum": [
+						"sibling_property",
+						"fullpath",
+						"value"
+					],
+					"x-enum-titles": [
+						"property (sibling)",
+						"property (full pah)",
+						"constant value"
+					],
+					"x-dependency": {
+						"and": [
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "+"
+							},
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "-"
 							}
+						]
+					}
+				},
+				"sibling_property": {
+					"title": "sibling property",
+					"x-input": "OO.ui.MenuTagMultiselectWidget",
+					"x-enum-provider": "sameLevelProperties",
+					"x-dependency": {
+						"and": [
+							{
+								"path": "subject",
+								"op": "==",
+								"value": "sibling_property"
+							},
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "+"
+							},
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "-"
+							}
+						]
+					}
+				},
+				"fullpath": {
+					"x-input": "OO.ui.MenuTagMultiselectWidget",
+					"x-enum-provider": "allProperties",
+					"x-dependency": {
+						"and": [
+							{
+								"path": "subject",
+								"op": "==",
+								"value": "fullpath"
+							},
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "+"
+							},
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "-"
+							}
+						]
+					}
+				},
+				"value": {
+					"title": "constant value",
+					"x-watch": "types_string",
+					"type": "string",
+					"links": [
+						{
+							"rel": "describedBy",
+							"href": "#/definitions/value_{{types_string}}"
 						}
-					]
+					],
+					"x-dependency": {
+						"and": [
+							{
+								"path": "subject",
+								"op": "==",
+								"value": "value"
+							},
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "+"
+							},
+							{
+								"path": "comparator",
+								"op": "!=",
+								"value": "-"
+							}
+						]
+					}
 				}
 			},
-			"x-name": "VDAskQuery/Condition_f",
 			"required": [],
 			"x-layout": "default"
 		},
@@ -178,7 +260,10 @@
 		},
 		"value_mixed": {
 			"description": "",
-			"type": ["string", "number"]
+			"type": [
+				"string",
+				"number"
+			]
 		}
 	}
 }

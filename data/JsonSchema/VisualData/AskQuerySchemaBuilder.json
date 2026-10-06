@@ -99,9 +99,7 @@
 		}
 	},
 	"required": [
-		"schema",
-		"format",
-		"name"
+		"schema"
 	],
 	"x-layout": "default",
 	"x-no-title": true

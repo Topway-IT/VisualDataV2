@@ -1,4 +1,3 @@
-// use IIFE, this ensure name is scoped
 
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-case-declarations */
@@ -6,52 +5,36 @@
 (function () {
 	function EnumProviders() {}
 
+	async function getVDSchemaPaths(jseditor, schemaName) {
+		const jsonForm = jseditor.jsoneditor.jsonFormsInstance;
+		const pageTitle = 'JsonSchema:' + schemaName;
+
+		const contents = await jsonForm.fetchArticleContent(pageTitle);
+		const schema = JSON.parse(contents);
+		if (!schema) return [];
+
+		options = { schema };
+
+		const schemaLoader = await jseditor.jsoneditor.initializeLoader(options);
+
+		const expandedSchema = schemaLoader.expandSchemaRecursive();
+
+		return new VisualData.SchemaPaths(expandedSchema);
+	}
+
 	EnumProviders.prototype.VDConditionsProps = function () {
 		const cache = {};
 		return {
 			source: async (jseditor, { item, watched }) => {
-				const jsonForm = jseditor.jsoneditor.jsonFormsInstance;
+				const schemaName = watched['root.schema'] || watched['schema'];
 
-				// console.log('VDConditionsProps item', item);
-				// console.log('watched', watched);
-				// console.log('jseditor', jseditor);
-
-				const schemaValue = watched['root.schema'] || watched['schema'];
-
-				console.log('VDConditionsProps property',watched );
-				
-				if (!schemaValue) {
+				if (!schemaName) {
 					return null;
 				}
 
-				const pageTitle = 'JsonSchema:' + schemaValue;
-				// if (cache[pageTitle]) {
-				// 	return cache[pageTitle];
-				// }
+				jseditor.VDSchemaPaths = await getVDSchemaPaths(jseditor, schemaName);
 
-				const contents = await jsonForm.fetchArticleContent(pageTitle);
-				const schema = JSON.parse(contents);
-				if (!schema) return [];
-
-				// console.log('schema', schema);
-				options = { schema };
-
-				const schemaLoader =
-					await jseditor.jsoneditor.initializeLoader(options);
-				// console.log('schemaLoader', schemaLoader);
-
-				const expandedSchema = schemaLoader.expandSchemaRecursive();
-
-				// console.log('expandedSchema', expandedSchema);
-
-				const schemaPaths = new VisualData.SchemaPaths(expandedSchema);
-
-				jseditor.jsoneditor.VDSchemaPaths = schemaPaths;
-
-				// console.log('schemaPaths', schemaPaths);
-
-				const values = [...schemaPaths.paths.values()];
-				// console.log('schemaPaths values', values);
+				const values = [...jseditor.VDSchemaPaths.paths.values()];
 				return values;
 			},
 		};
@@ -105,34 +88,46 @@
 		};
 
 		return {
-			source: (jseditor, { item, watched }) => {
-			
-				console.log('VDConditionsComparator comparator', watched);
-				// console.log('watched comparator', watched);
+			source: async (jseditor, { item, watched }) => {
 				if (!watched['property']) {
 					return null;
 				}
-				// console.log(
-				// 	'jseditor.VDSchemaPaths',
-				// 	jseditor.jsoneditor.VDSchemaPaths,
-				// );
 
-				if (!jseditor.jsoneditor.VDSchemaPaths) {
-					return null;
+				const propertyEditor = jseditor.getSiblingEditor('property');
+
+				let VDSchemaPaths = propertyEditor.VDSchemaPaths;
+
+
+				if (!VDSchemaPaths) {
+					const schemaEditor = jseditor.jsoneditor.getEditor(
+						propertyEditor.watched['root.schema'] ||
+							propertyEditor.watched['schema'],
+					);
+
+					const schemaName = schemaEditor.getValue();
+					if (!schemaName) {
+						return null;
+					}
+
+					propertyEditor.VDSchemaPaths = await getVDSchemaPaths(
+						jseditor,
+						schemaName,
+					);
+
+					VDSchemaPaths = propertyEditor.VDSchemaPaths;
+
 				}
 
 				const jsonPaths = getKeysByValue(
-					jseditor.jsoneditor.VDSchemaPaths.paths,
+					VDSchemaPaths.paths,
 					watched['property'],
 				);
 
-				// console.log('comparator jsonPaths', jsonPaths);
 
 				const types = new Set();
 
 				for (const jsonPath of jsonPaths) {
-					const subSchema =
-						jseditor.jsoneditor.VDSchemaPaths.getSubschemaByJsonPath(jsonPath);
+					const subSchema = VDSchemaPaths.getSubschemaByJsonPath(jsonPath);
 
 					if (!JsonForms.Utilities.isObject(subSchema)) continue;
 
@@ -156,20 +151,25 @@
 					}
 				}
 
-				const typeList = [...types]; // e.g. ['string', 'null']
-				// console.log('comparator typeList', typeList);
+				const typeList = [...types];
+
+				if (!typeList.length) {
+					return;
+				}
 
 				const typesEditor = jseditor.jsoneditor.getEditor([
 					...jseditor.path.slice(0, -1),
 					'types',
 				]);
+
+				if (!typesEditor) {
+					console.log('typesEditor not exists ', jseditor.path, jseditor);
+					return;
+				}
+
 				typesEditor.setValue(typeList);
 
-
-				const typesStringEditor = jseditor.jsoneditor.getEditor([
-					...jseditor.path.slice(0, -1),
-					'types_string',
-				]);
+				const typesStringEditor = jseditor.getSiblingEditor('types_string');
 
 				const typeListString = typeList.length === 1 ? typeList[0] : 'mixed';
 
