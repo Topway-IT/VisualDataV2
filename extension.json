@@ -1,7 +1,7 @@
 {
 	"name": "VisualData",
 	"author": "thomas-topway-it",
-	"version": "2.0.1",
+	"version": "2.0.3",
 	"url": "https://www.mediawiki.org/wiki/Extension:VisualData",
 	"descriptionmsg": "VisualData-extension-desc",
 	"license-name": "GPL-2.0-or-later",
@@ -30,12 +30,15 @@
 		}
 	},
 	"ContentHandlers": {
+		"visualdata-jsondata": "VisualDataJsonDataContentHandler"
 	},
 	"Actions": {
 	},
 	"AutoloadClasses": {
 		"VisualData": "includes/VisualData.php",
 		"VisualDataHooks": "includes/VisualDataHooks.php",
+		"VisualDataJsonDataContentHandler": "includes/content/VisualDataJsonDataContentHandler.php",
+		"VisualDataJsonDataContent": "includes/content/VisualDataJsonDataContent.php",
 		"SpecialVisualDataManage": "includes/specials/SpecialVisualDataManage.php"
 	},
 	"AutoloadNamespaces": {
@@ -52,6 +55,7 @@
 		"SkinBuildSidebar": "main",
 		"BeforePageDisplay": "main",
 		"OutputPageParserOutput": "main",
+		"MediaWikiServices": "VisualDataHooks::onMediaWikiServices",
 		"JsonForms::FormSubmitBeforeProcess": "VisualDataHooks::onFormSubmitBeforeProcess",
 		"JsonForms::FormSubmitBeforeSave": "VisualDataHooks::onFormSubmitBeforeSave",
 		"JsonForms::FormSubmitSuccess": "VisualDataHooks::onJsonFormsFormSubmitSuccess"

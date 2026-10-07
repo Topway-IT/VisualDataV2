@@ -157,17 +157,11 @@
 					return;
 				}
 
-				const typesEditor = jseditor.jsoneditor.getEditor([
-					...jseditor.path.slice(0, -1),
-					'types',
-				]);
+				const typesEditor = jseditor.getSiblingEditor('types');
 
-				if (!typesEditor) {
-					console.log('typesEditor not exists ', jseditor.path, jseditor);
-					return;
+				if (typesEditor) {
+					typesEditor.setValue(typeList);
 				}
-
-				typesEditor.setValue(typeList);
 
 				const typesStringEditor = jseditor.getSiblingEditor('types_string');
 

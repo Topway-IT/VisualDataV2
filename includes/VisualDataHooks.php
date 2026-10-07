@@ -25,6 +25,10 @@
 use MediaWiki\Extension\VisualData\Aliases\Title as TitleClass;
 use MediaWiki\MediaWikiServices;
 
+// back-compatibility
+define( 'SLOT_ROLE_VISUALDATA_JSONDATA', 'jsondata' );
+define( 'CONTENT_MODEL_VISUALDATA_JSONDATA', 'visualdata-jsondata' );
+
 class VisualDataHooks implements
 	\MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook
 {
@@ -34,6 +38,22 @@ class VisualDataHooks implements
 	 * @return void
 	 */
 	public static function initExtension( $credits = [] ) {
+	}
+
+	/**
+	 * @param MediaWikiServices $services
+	 * @return void
+	 */
+	public static function onMediaWikiServices( $services ) {
+		$services->addServiceManipulator( 'SlotRoleRegistry', static function ( \MediaWiki\Revision\SlotRoleRegistry $registry ) {
+			if ( !$registry->isDefinedRole( SLOT_ROLE_VISUALDATA_JSONDATA ) ) {
+				$registry->defineRoleWithModel( SLOT_ROLE_VISUALDATA_JSONDATA, CONTENT_MODEL_VISUALDATA_JSONDATA, [
+					'display' => 'none',
+					'region' => 'center',
+					'placement' => 'append'
+				] );
+			}
+		} );
 	}
 
 	/**
