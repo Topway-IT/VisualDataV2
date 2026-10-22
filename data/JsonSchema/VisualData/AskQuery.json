@@ -57,12 +57,7 @@
 					"x-format": "number",
 					"x-input": "OO.ui.NumberInputWidget"
 				}
-			],
-			"type": "string",
-			"x-required": false,
-			"x-format-type": "custom",
-			"x-format": "text",
-			"x-input": "OO.ui.TextInputWidget"
+			]
 		},
 		"limit": {
 			"type": "integer",

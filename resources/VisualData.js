@@ -30,18 +30,41 @@ function VisualData() {
 
 VisualData.prototype.onInitialized = async function (
 	jsonFormsInstance,
-	editor,
+	jsoneditor,
 	eventData,
 ) {
-	console.log('onInitialized jsonFormsInstance', jsonFormsInstance);
-	console.log('onInitialized editor', editor);
-	console.log('onInitialized eventData', eventData);
 
-	//onInitialized.editor.schema.
+	const schema = jsoneditor.options.schema;
+	if (jsonFormsInstance.parseSchemaId(schema.$id) === 'MetaSchema') {
+		let path = [
+			'definitions',
+			'string',
+			'properties',
+			'x-enum-provider',
+			'enum',
+		];
+		let value = JsonForms.Utilities.getNestedProp(path, schema);
+		value.push('VisualData');
 
-	const schemaId = jsonFormsInstance.parseSchemaId(editor.schema.$id);
+		path = [
+			'definitions',
+			'stringOptions',
+			'properties',
+			'x-autocomplete-provider',
+			'enum',
+		];
+		value = JsonForms.Utilities.getNestedProp(path, schema);
+		value.push('VisualData');
 
-	if (schemaId === 'VDAskQuery') {
+		path = [
+			'definitions',
+			'stringOptionsMultiselect',
+			'properties',
+			'x-autocomplete-provider',
+			'enum',
+		];
+		value = JsonForms.Utilities.getNestedProp(path, schema);
+		value.push('VisualData');
 	}
 };
 
@@ -58,52 +81,17 @@ VisualData.prototype.initialize = async function () {
 		enumProviders.VDConditionsComparator,
 	);
 
-	JsonForms.prototype.preprocessSchema = (editor, schema) => {
-		console.log('editor', editor);
-		console.log('schema', schema);
+	JsonForms.prototype.registerEvent.call(
+		null,
+		this,
+		'initialized',
+		'onInitialized',
+	);
 
-		const jsonFormsInstance = editor.jsonFormsInstance;
-
-		if (jsonFormsInstance.parseSchemaId(schema.$id) === 'MetaSchema') {
-			console.log('preprocessSchema', schema);
-
-			let path = [
-				'definitions',
-				'string',
-				'properties',
-				'x-enum-provider',
-				'enum',
-			];
-			let value = JsonForms.Utilities.getNestedProp(path, schema);
-			value.push('VisualData');
-
-			VisualData.Utilities.setNestedProp(path, schema, value);
-
-			path = [
-				'definitions',
-				'stringOptions',
-				'properties',
-				'x-autocomplete-provider',
-				'enum',
-			];
-			value = JsonForms.Utilities.getNestedProp(path, schema);
-			value.push('VisualData');
-			VisualData.Utilities.setNestedProp(path, schema, value);
-
-			path = [
-				'definitions',
-				'stringOptionsMultiselect',
-				'properties',
-				'x-autocomplete-provider',
-				'enum',
-			];
-			value = JsonForms.Utilities.getNestedProp(path, schema);
-			value.push('VisualData');
-			VisualData.Utilities.setNestedProp(path, schema, value);
-		}
-
-		return schema;
-	};
+	/*
+	JsonForms.registerHook('onInitEditor', function (jsoneditor) {
+	});
+	*/
 };
 
 (function ($) {

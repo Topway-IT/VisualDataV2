@@ -152,7 +152,6 @@ class SpecialVisualDataManage extends SpecialPage {
 		$formDescriptor->return = 'url';
 		$formDescriptor->return_url = $this->localTitle->getLocalURL();
 
-		$schemaName = '';
 		$pagename = $this->getRequest()->getVal( 'pagename' );
 
 		// from SubmitProcessors -> PageForms -> ManageSchemas
@@ -177,17 +176,11 @@ class SpecialVisualDataManage extends SpecialPage {
 
 			$formDescriptor->edit = $title->getFullText();
 			$articleContent = \JsonForms::getArticleContent( $title );
-			$schemaName = $title->getDBKey();
 		}
 
 		$startVal = [];
 		switch ( $item ) {
 			case 'query':
-				$specialpage_title = SpecialPage::getTitleFor(
-					'VisualDataManage',
-					'Queries',
-				);
-
 				$formDescriptor->pagename_formula = 'VisualDataQuery:<name>';
 				$innerSchema = \JsonForms::getSourceSchema(
 					'VisualData/AskQuery',
@@ -209,7 +202,7 @@ class SpecialVisualDataManage extends SpecialPage {
 				break;
 		}
 
-		if ( $pageid ) {
+		if ( $action === 'edit' ) {
 			$specialPageTitle = SpecialPage::getTitleFor(
 				'VisualDataManage',
 				$par,
@@ -218,7 +211,9 @@ class SpecialVisualDataManage extends SpecialPage {
 				'visualdata-special-manage-returnlink',
 				$specialPageTitle->getFullText(),
 			);
+		}
 
+		if ( $pageid ) {
 			$out->addHTML(
 				HtmlClass::rawElement(
 					'p',
