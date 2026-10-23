@@ -5,8 +5,8 @@
 (function () {
 	function EnumProviders() {}
 
-	async function getVDSchemaPaths(jseditor, schemaName) {
-		const jsonForm = jseditor.jsoneditor.jsonFormsInstance;
+	async function getVDSchemaPaths(editor, schemaName) {
+		const jsonForm = editor.jsoneditor.jsonFormsInstance;
 		const pageTitle = 'JsonSchema:' + schemaName;
 
 		const contents = await jsonForm.fetchArticleContent(pageTitle);
@@ -15,7 +15,7 @@
 
 		options = { schema };
 
-		const schemaLoader = await jseditor.jsoneditor.initializeLoader(options);
+		const schemaLoader = await editor.jsoneditor.initializeLoader(options);
 
 		const expandedSchema = schemaLoader.expandSchemaRecursive();
 
@@ -25,16 +25,16 @@
 	EnumProviders.prototype.VDConditionsProps = function () {
 		const cache = {};
 		return {
-			source: async (jseditor, { item, watched }) => {
+			source: async (editor, { item, watched }) => {
 				const schemaName = watched['root.schema'] || watched['schema'];
 
 				if (!schemaName) {
 					return null;
 				}
 
-				jseditor.VDSchemaPaths = await getVDSchemaPaths(jseditor, schemaName);
+				editor.VDSchemaPaths = await getVDSchemaPaths(editor, schemaName);
 
-				const values = [...jseditor.VDSchemaPaths.paths.values()];
+				const values = [...editor.VDSchemaPaths.paths.values()];
 				return values;
 			},
 		};
@@ -88,18 +88,18 @@
 		};
 
 		return {
-			source: async (jseditor, { item, watched }) => {
+			source: async (editor, { item, watched }) => {
 				if (!watched['property']) {
 					return null;
 				}
 
-				const propertyEditor = jseditor.getSiblingEditor('property');
+				const propertyEditor = editor.getSiblingEditor('property');
 
 				let VDSchemaPaths = propertyEditor.VDSchemaPaths;
 
 
 				if (!VDSchemaPaths) {
-					const schemaEditor = jseditor.jsoneditor.getEditor(
+					const schemaEditor = editor.jsoneditor.getEditor(
 						propertyEditor.watched['root.schema'] ||
 							propertyEditor.watched['schema'],
 					);
@@ -110,7 +110,7 @@
 					}
 
 					propertyEditor.VDSchemaPaths = await getVDSchemaPaths(
-						jseditor,
+						editor,
 						schemaName,
 					);
 
@@ -157,13 +157,13 @@
 					return;
 				}
 
-				const typesEditor = jseditor.getSiblingEditor('types');
+				const typesEditor = editor.getSiblingEditor('types');
 
 				if (typesEditor) {
 					typesEditor.setValue(typeList);
 				}
 
-				const typesStringEditor = jseditor.getSiblingEditor('types_string');
+				const typesStringEditor = editor.getSiblingEditor('types_string');
 
 				const typeListString = typeList.length === 1 ? typeList[0] : 'mixed';
 
@@ -171,7 +171,7 @@
 
 				return getComparatorsForType(typeList);
 			},
-			title: (jseditor, { item, watched }) => COMPARATOR_LABELS[item] || item,
+			title: (editor, { item, watched }) => COMPARATOR_LABELS[item] || item,
 		};
 	};
 

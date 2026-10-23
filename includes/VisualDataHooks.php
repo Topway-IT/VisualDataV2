@@ -23,6 +23,7 @@
  */
 
 use MediaWiki\Extension\VisualData\Aliases\Title as TitleClass;
+use MediaWiki\Extension\VisualData\DatabaseManager;
 use MediaWiki\MediaWikiServices;
 
 // back-compatibility
@@ -196,10 +197,15 @@ class VisualDataHooks implements
 		array &$returnData,
 		&$errors = [],
 	) {
-	return;
 		trigger_error('^^submittedData ' . print_r($submittedData,1) );
 		trigger_error('^^processedData ' . print_r($processedData,1) );
-		exit;
+
+		$schemaName = explode( 'JsonSchema:', $submittedData->schemaId )[ 1 ];
+		
+		$databaseManager = new DatabaseManager();
+		$databaseManager->recordProperties( $schemaName, $processedData['targetTitle'], $submittedData->structuredValue, $errors );
+
+	//	exit;
 	}
 
 }

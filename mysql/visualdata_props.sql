@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS /*_*/visualdata_props (
 	`table_id` int(11) NOT NULL,
 	`path` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
 	`path_parent` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
-	`path_no_index` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+	`cleanpath` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
 	`jsonpath` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
 	`updated_at` datetime NOT NULL,
 	`created_at` datetime NOT NULL
@@ -30,25 +30,25 @@ ALTER TABLE /*_*/visualdata_props
 	ADD INDEX `path_parent` (`path_parent` (255));
 
 ALTER TABLE /*_*/visualdata_props
-	ADD INDEX `path_no_index` (`path_no_index` (255));
+	ADD INDEX `cleanpath` (`cleanpath` (255));
 	
 ALTER TABLE /*_*/visualdata_props
 	ADD INDEX `jsonpath` (`jsonpath` (255));
 
 ALTER TABLE /*_*/visualdata_props
-	ADD INDEX `index_1` (`path_parent`(255), `path_no_index`(255));
+	ADD INDEX `index_1` (`path_parent`(255), `cleanpath`(255));
 
 ALTER TABLE /*_*/visualdata_props
 	ADD INDEX `index_2` (`path_parent`(255), `jsonpath`(255));
 
 ALTER TABLE /*_*/visualdata_props
-	ADD INDEX `index_3` (`path_no_index`(255), `path_parent`(255));
+	ADD INDEX `index_3` (`cleanpath`(255), `path_parent`(255));
 
 ALTER TABLE /*_*/visualdata_props
 	ADD INDEX `index_4` (`jsonpath`(255), `path_parent`(255));
 	
 ALTER TABLE /*_*/visualdata_props
-	ADD UNIQUE INDEX `index_3` (`schema_id`, `path`(255));
+	ADD UNIQUE INDEX `index_5` (`schema_id`, `path`(255));
 
 --
 -- AUTO_INCREMENT
