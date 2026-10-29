@@ -98,7 +98,18 @@
 		"format": {
 			"type": "string",
 			"enum": [
+				"table",
 				"datatables",
+				"template",
+				"raw",
+				"json-raw",
+				"lua",
+				"path",
+				"carousel",
+				"count",
+				"pageid",
+				"title",
+				"base64",
 				"print",
 				"map",
 				"calendar",
@@ -108,6 +119,19 @@
 			"x-format-type": "custom",
 			"x-format": "text",
 			"x-input": "OO.ui.TextInputWidget"
+		},
+		"template": {
+			"type": "string",
+			"default": "",
+			"x-input": "mw.widgets.TitleInputWidget",
+			"x-input-config": {
+				"namespace": 10
+			},
+			"x-dependency": {
+				"path": "format",
+				"op": "==",
+				"value": "template"
+			}
 		},
 		"printouts": {
 			"type": "array",
@@ -141,4 +165,3 @@
 	"x-layout": "default",
 	"x-no-title": true
 }
-

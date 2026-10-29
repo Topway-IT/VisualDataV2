@@ -45,6 +45,9 @@ class DatabaseManager {
 
 	/** @var array */
 	private $errors = [];
+	
+	/** @var bool Skip empty/null values when recording properties */
+	private $skipEmptyValues = true;
 
 	/** @var array */
 	public static $propTypes = [
@@ -77,28 +80,11 @@ class DatabaseManager {
 		'visualdata_boolean'
 	];
 
-	public function __construct() {
+	public function __construct( $skipEmptyValues = true ) {
+		$this->skipEmptyValues = $skipEmptyValues;
 		$this->dbr = \JsonForms::getDB( DB_REPLICA );
 		$this->dbw = \JsonForms::getDB( DB_PRIMARY );
 		$this->dateTime = date( 'Y-m-d H:i:s' );
-	}
-
-	/**
-	 * @param string $schemaName
-	 * @return int
-	 */
-	private function recordSchema( $schemaName ) {
-		$tableName = 'visualdata_schemas';
-		$conds = [
-			'name' => $schemaName,
-		];
-		$insert = array_merge( $conds, [
-			'updated_at' => $this->dateTime,
-			'created_at' => $this->dateTime
-		] );
-		$schemaId = $this->updateOrInsert( $tableName, $conds, $insert );
-
-		return $schemaId;
 	}
 
 	/**
@@ -148,13 +134,11 @@ class DatabaseManager {
 	}
 
 	/**
-	 * @param string $schemaName
+	 * @param int $schemaId
 	 * @param int $articleId
 	 * @return int
 	 */
-	private function recordSchemaPage( $schemaName, $articleId ) {
-		$schemaId = $this->recordSchema( $schemaName );
-
+	private function recordSchemaPage( $schemaId, $articleId ) {
 		$tableName = 'visualdata_schema_pages';
 		$conds = [
 			'page_id' => $articleId,
@@ -165,8 +149,6 @@ class DatabaseManager {
 			'created_at' => $this->dateTime
 		] );
 		$this->updateOrInsert( $tableName, $conds, $insert );
-
-		return $schemaId;
 	}
 
 	/**
@@ -231,6 +213,40 @@ class DatabaseManager {
 	}
 
 	/**
+	 * Return true when a value should be recorded for the given prop type.
+	 * Empty string, null, and empty array are skipped; false is preserved for
+	 * booleans; 0 and '0' are preserved for integer/numeric/text.
+	 *
+	 * @param mixed  $value
+	 * @param string $propType
+	 * @return bool
+	 */
+	private function shouldRecordValue( $value, string $propType ): bool {
+		if ( $value === null ) {
+			return false;
+		}
+		if ( $value === '' || $value === [] ) {
+			return false;
+		}
+		// Legitimate falsy values by type
+		switch ( $propType ) {
+			case 'boolean':
+				return true;                 // false is a real value
+			case 'integer':
+			case 'numeric':
+				return $value !== '';        // 0 and '0' are real
+			case 'date':
+			case 'datetime':
+			case 'time':
+				return $value !== '';        // '0000-00-00' is arguably empty; see note below
+			case 'text':
+			case 'textarea':
+			default:
+				return $value !== '';
+		}
+	}
+
+	/**
 	 * @param string $schemaName
 	 * @param Title|MediaWiki\Title\Title $title
 	 * @param stdClass $structuredValue
@@ -239,7 +255,11 @@ class DatabaseManager {
 	 */
 	public function recordProperties( $schemaName, $title, $structuredValue, &$errors ) {
 		$articleId = $title->getArticleID();
-		$schemaId = $this->recordSchemaPage( $schemaName, $articleId );
+
+		$schemaTitle = TitleClass::newFromText( 'JsonSchema:' . $schemaName );
+		$schemaId = $schemaTitle->getArticleID();
+
+		$this->recordSchemaPage( $schemaId, $articleId );
 
 		// delete all values related to this schema and article
 		foreach ( self::$propTypes as $propType ) {
@@ -276,16 +296,50 @@ class DatabaseManager {
                             [value] => aaa
                             [key] => first_name
                         )
+            [email] => stdClass Object
+                (
+                    [value] => Array
+                        (
+                            [0] => aaa@dd.it
+                        )
+
+                    [key] => email
+                )
+           [email.0] => stdClass Object
+                (
+                    [value] => aaa@dd.it
+                    [key] => 0
+                )
 
 */
 		$rows = [];
 		$mapPathPropType = [];
 		$mapCleanPathTableId = [];
 		$mapPathValue = [];
+		
+		trigger_error('^^ $structuredValue ' . print_r( $structuredValue,1));
+		
 		foreach ( $structuredValue->values as $path => $value ) {
 			$cleanPath = $structuredValue->cleanPaths->{$path};
 			$jsonPath = $structuredValue->jsonPaths->{$path};
 			$schema = $structuredValue->schemas->{$jsonPath};
+
+			// array items have a schema like $jsonPath.items
+			// otherwise do: 1. remove trailing .items from $jsonPath
+			// if path is like email.0
+			// 2. get schema $structuredValue->jsonPaths->{$adjustedPath} -> items
+			// 3. continue when $schema->type is array 4. remove foreach ( $value->value as $i => $v ) {
+			// below / or store array -> items in a separate schema in the client
+			if ( !$schema ) {
+				continue;
+			}
+
+		trigger_error('^^ $propType ' .$path . ' - ' . $propType);
+
+			$isArray = $schema->type === 'array' && isset( $schema->items );
+			if ( $isArray ) {
+				$schema = $schema->items;
+			}
 
 			$propType = $this->schemaToPropType( (array)$schema );
 			$table_id = $this->tableTypeToId( $propType );
@@ -296,22 +350,52 @@ class DatabaseManager {
 			}
 
 			$mapCleanPathTableId[$cleanPath] = $table_id;
-			$mapPathPropType[$path] = $propType;
-			$mapPathValue[$path] = $value->value;
-
 			$pathParent = substr( $path, 0, strrpos( $path, '/' ) );
 
-			$rows[] = [
-				'schema_id' => $schemaId,
-				'table_id' => $table_id,
-				'path' => $path,
-				'cleanpath' => $cleanPath,
-				'jsonpath' => $jsonPath,
-				'path_parent' => $pathParent,
-				'updated_at' => $this->dateTime,
-				'created_at' => $this->dateTime,
-			];
+			if ( !$isArray ) {
+				if ( $this->skipEmptyValues && !$this->shouldRecordValue( $value->value, $propType ) ) {
+					continue;
+				}
+
+				$mapPathPropType[$path] = $propType;
+				$mapPathValue[$path] = $value->value;
+
+				$rows[] = [
+					'schema_id' => $schemaId,
+					'table_id' => $table_id,
+					'path' => $path,
+					'cleanpath' => $cleanPath,
+					'jsonpath' => $jsonPath,
+					'path_parent' => $pathParent,
+					'updated_at' => $this->dateTime,
+					'created_at' => $this->dateTime,
+				];
+
+			} else {
+				foreach ( $value->value as $i => $v ) {
+					if ( $this->skipEmptyValues && !$this->shouldRecordValue( $v, $propType ) ) {
+						continue;
+					}
+
+					$path_ = $path . '.' . $i;
+					$mapPathPropType[$path_] = $propType;
+					$mapPathValue[$path_] = $v;
+
+					$rows[] = [
+						'schema_id' => $schemaId,
+						'table_id' => $table_id,
+						'path' => $path_,
+						'cleanpath' => $cleanPath,
+						'jsonpath' => $jsonPath,
+						'path_parent' => $pathParent,
+						'updated_at' => $this->dateTime,
+						'created_at' => $this->dateTime,
+					];
+				}
+			}
 		}
+		
+		trigger_error('^^ $rows ' . print_r($rows,1));
 
 		// insert new props
 		$tableName = 'visualdata_props';
@@ -373,6 +457,7 @@ class DatabaseManager {
 			$propType = $mapPathPropType[$path];
 			$propId = $mapPathPropId[$path];
 			$value_ = $mapPathValue[$path];
+
 			$tables[$propType][] = [
 				'page_id' => $articleId,
 				'prop_id' => $propId,

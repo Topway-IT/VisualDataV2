@@ -25,6 +25,7 @@ use MediaWiki\Extension\JsonForms\ParametersProcessor;
 use MediaWiki\Extension\VisualData\Aliases\Html as HtmlClass;
 use MediaWiki\Extension\VisualData\Aliases\Linker as LinkerClass;
 use MediaWiki\Extension\VisualData\Aliases\Title as TitleClass;
+use MediaWiki\Extension\VisualData\QueryProcessor;
 
 class VisualData {
 
@@ -58,6 +59,13 @@ class VisualData {
 		$output = $context->getOutput();
 		$user = $context->getUser();
 
+		$returnError = static function ( $error ) {
+			return [
+				$error,
+				'isHTML' => false
+			];
+		};
+
 		$functionReturn = static function ( $value ) {
 			return [ $value, 'noparse' => true, 'isHTML' => true ];
 		};
@@ -75,7 +83,7 @@ class VisualData {
 		$data = [];
 		$errorMessage = null;
 
-		$formSchema = JsonForms::getSourceSchema(
+		$formSchema = \JsonForms::getSourceSchema(
 			'VisualData/AskQuery',
 			'JsonSchema',
 		);
@@ -84,18 +92,13 @@ class VisualData {
 			throw new MWException( 'Cannot load core schema' );
 		}
 
-		$formSchemaPopupConfig = self::getSourceSchema(
-			'ButtonWidgetSchema',
-			'JsonSchema/Core',
-		);
-
 		$parametersProcessor = new ParametersProcessor( $argv, $formSchema );
 		$parametersProcessor->buildOptionsSchema();
 
 		// default options merged with inline options
 		$allParameters = $parametersProcessor->getOptions();
 
-		$formDescriptor = self::getSourceSchema( $queryName, 'VisualDataQuery' );
+		$formDescriptor = \JsonForms::getSourceSchema( $queryName, 'VisualDataQuery' );
 
 		if ( !$formDescriptor ) {
 			return $functionReturn(
@@ -117,13 +120,176 @@ class VisualData {
 			);
 		}
 
+		$params = json_decode( json_encode( $formDescriptor ), 2 );
 
-print_r($formDescriptor);
-exit;
+		$errors_ = [];
+		$resultPrinter = self::prepareResults(
+			$parser,
+			$context,
+			$params,
+			$errors_
+		);
 
-		$result = self::getPageForm( $user, $output, $formDescriptor );
+		if ( !$resultPrinter ) {
+			return $returnError( $errors_[0] );
+		}
 
-		return [ $result, 'noparse' => true, 'isHTML' => true ];
+		$results = $resultPrinter->getResults();
+		
+		$isHtml = $resultPrinter->isHtml();
+
+		if ( count( $resultPrinter->getModules() ) ) {
+			$parserOutput->addModules( $resultPrinter->getModules() );
+		}
+
+		return [ $results, 'isHTML' => $isHtml ];
+	}
+
+	/**
+	 * @param Parser $parser
+	 * @param Context $context
+	 * @param array $params
+	 * @param array &$errors = []
+	 * @return bool|ResultPrinter
+	 */
+	public static function prepareResults(
+		$parser,
+		$context,
+		$params,
+		&$errors = []
+	) {
+	
+	
+/*
+[conditions] => Array
+                (
+                    [0] => stdClass Object
+                        (
+                            [property] => fullname
+                            [comparator] => +
+                            [types] => Array
+                                (
+                                    [0] => string
+                                )
+
+                            [types_string] => string
+                        )
+
+                )
+                
+ OR
+ 
+ 	"conditions": [
+			{
+				"or": [
+					{
+						"property": "fullname",
+						"comparator": "=",
+						"types": [
+							"string"
+						],
+						"types_string": "string",
+						"value": "cccd"
+					},
+					{
+						"property": "fullname",
+						"comparator": "=",
+						"types": [
+							"string"
+						],
+						"types_string": "string",
+						"value": "x"
+					}
+				]
+			}
+		]
+		
+                
+            */
+		if ( empty( $params['schema'] ) ) {
+			$errors[] = 'no schema';
+			return false;
+		}
+
+		if ( empty( $params['format'] ) ) {
+			$errors[] = 'no format';
+			return false;
+		}
+
+		if ( !$params['schema'] ) {
+			$errors[] = 'no valid schema';
+			return false;
+		}
+
+		$title = TitleClass::newFromText( 'JsonSchema:' . $params['schema'] );
+		$wikiPage = \JsonForms::getWikiPage( $title );
+
+		$schemaMetadata = [];
+		if ( $wikiPage ) {
+			$metadata = \JsonForms::getMetadata( $wikiPage );
+			if ( $metadata ) {
+				$schemaMetadata = json_decode( json_encode( $metadata ), true );
+			}
+		}
+
+		if ( !array_key_exists( $params['format'], $GLOBALS['wgVisualDataResultPrinterClasses'] ) ) {
+			$errors[] = 'no valid format';
+			return false;
+		}
+
+		$params['format'] = 'template';
+		$className = $GLOBALS['wgVisualDataResultPrinterClasses'][$params['format']];
+		$class = "MediaWiki\Extension\VisualData\ResultPrinters\\{$className}";
+
+		// parse format-related parameters
+		// if ( property_exists( $class, 'parameters' ) ) {
+		// 	$paramsSchema_ = $class::$parameters;
+		// 	$params_ = ParametersProcessor::applySchemaDefaults( $params, $paramsSchema_ );
+		// }
+
+		$user = $context->getUser();
+		$queryProcessor = new QueryProcessor( $user, $schemaMetadata, $params );
+
+		// $res = $queryProcessor->getResultsTree();
+		// print_r($res);
+		// exit;
+		return new $class( $parser, $user, $context->getOutput(), $queryProcessor, $params );
+	}
+
+	/**
+	 * @param string $str
+	 * @param string $token
+	 * @return array
+	 */
+	public static function splitString( $str, $token = ',' ) {
+		$ret = [];
+		$tokenLen = strlen( $token );
+		$start = 0;
+
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( ( $pos = strpos( $str, $token, $start ) ) !== false ) {
+			$segment = substr( $str, $start, $pos - $start );
+			$val = trim( $segment );
+			if ( $val !== '' ) {
+				$ret[] = $val;
+			}
+			$start = $pos + $tokenLen;
+		}
+
+		$segment = substr( $str, $start );
+		$val = trim( $segment );
+		if ( $val !== '' ) {
+			$ret[] = $val;
+		}
+
+		return $ret;
+	}
+
+	/**
+	 * @param string &$name
+	 */
+	public static function adjustSchemaName( &$name ) {
+		$name = str_replace( '_', ' ', (string)$name );
 	}
 
 }

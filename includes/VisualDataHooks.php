@@ -39,6 +39,35 @@ class VisualDataHooks implements
 	 * @return void
 	 */
 	public static function initExtension( $credits = [] ) {
+		// if ( !array_key_exists( 'wgVisualDataDisableSlotsNavigation', $GLOBALS )
+		// 	&& self::$User->isAllowed( 'visualdata-canmanageschemas' )
+		// 	) {
+		// 	$GLOBALS['wgVisualDataDisableSlotsNavigation'] = true;
+		// }
+
+		$GLOBALS['wgVisualDataResultPrinterClasses'] = [
+			'table' => 'TableResultPrinter',
+			'datatable' => 'DatatableResultPrinter',
+			'datatables' => 'DatatableResultPrinter',
+			'json' => 'JsonResultPrinter',
+			'template' => 'TemplateResultPrinter',
+			'templates' => 'TemplateResultPrinter',
+			'raw' => 'TemplateResultPrinter',
+			'base64' => 'Base64ResultPrinter',
+			'query' => 'QueryResultPrinter',
+			'json-raw' => 'JsonRawResultPrinter',
+			'lua' => 'LuaResultPrinter',
+			'carousel' => 'CarouselResultPrinter',
+			'count' => 'CountResultPrinter',
+			'pageid' => 'PageidResultPrinter',
+			'pagetitle' => 'PagetitleResultPrinter',
+			'map' => 'MapResultPrinter',
+			'calendar' => 'CalendarResultPrinter',
+			// 'list' => 'ListResultPrinter',
+		];
+
+		$GLOBALS['wgDebugLogGroups']['VisualData'] = $GLOBALS['IP'] . '/'
+			. $GLOBALS['wgVisualDataDebugPath'];
 	}
 
 	/**
@@ -96,7 +125,7 @@ class VisualDataHooks implements
 			'parserFunctionPrint',
 		] );
 	}
-	
+
 	/**
 	 * @param OutputPage $out
 	 * @param ParserOutput $parserOutput
@@ -197,15 +226,14 @@ class VisualDataHooks implements
 		array &$returnData,
 		&$errors = [],
 	) {
-		trigger_error('^^submittedData ' . print_r($submittedData,1) );
-		trigger_error('^^processedData ' . print_r($processedData,1) );
+		if ( $submittedData->processor === 'PageForms' || $submittedData->processor === 'EditSchema' ) {
+			trigger_error('^^submittedData ' . print_r($submittedData,1) );
+			trigger_error('^^processedData ' . print_r($processedData,1) );
 
-		$schemaName = explode( 'JsonSchema:', $submittedData->schemaId )[ 1 ];
-		
-		$databaseManager = new DatabaseManager();
-		$databaseManager->recordProperties( $schemaName, $processedData['targetTitle'], $submittedData->structuredValue, $errors );
-
+			$schemaName = explode( 'JsonSchema:', $submittedData->schemaId )[ 1 ];
+			$databaseManager = new DatabaseManager();
+			$databaseManager->recordProperties( $schemaName, $processedData['targetTitle'], $submittedData->structuredValue, $errors );
+		}
 	//	exit;
 	}
-
 }

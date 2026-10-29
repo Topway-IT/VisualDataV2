@@ -44,7 +44,9 @@
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\VisualData\\": "includes/classes/",
 		"MediaWiki\\Extension\\VisualData\\Aliases\\": "includes/aliases/",
-		"MediaWiki\\Extension\\VisualData\\Specials\\": "includes/specials/"
+		"MediaWiki\\Extension\\VisualData\\Specials\\": "includes/specials/",
+		"MediaWiki\\Extension\\VisualData\\Utils\\": "includes/utils/",
+		"MediaWiki\\Extension\\VisualData\\ResultPrinters\\": "includes/classes/formats/"
 	},
 	"ExtensionMessagesFiles": {
 		"VisualDataAlias": "VisualData.alias.php",
@@ -55,6 +57,7 @@
 		"SkinBuildSidebar": "main",
 		"BeforePageDisplay": "main",
 		"OutputPageParserOutput": "main",
+		"ParserFirstCallInit": "main",
 		"MediaWikiServices": "VisualDataHooks::onMediaWikiServices",
 		"JsonForms::FormSubmitBeforeProcess": "VisualDataHooks::onFormSubmitBeforeProcess",
 		"JsonForms::FormSubmitBeforeSave": "VisualDataHooks::onFormSubmitBeforeSave",
