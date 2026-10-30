@@ -57,7 +57,7 @@ class ImportData extends Maintenance {
 		$callbackPagename = static function ( $value ) {
 			return str_replace( '.schema', '', $value );
 		};
-		$importer = new Importer( $dirPath, $prefix, $callbackRefs, $callbackPagename );
+		$importer = new Importer( $user, $dirPath, $prefix, $callbackRefs, $callbackPagename );
 		$importer->doImport();
 	}
 
