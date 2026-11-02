@@ -255,8 +255,17 @@ class DatabaseManager {
 	 */
 	public function recordProperties( $schemaName, $title, $structuredValue, &$errors ) {
 		$articleId = $title->getArticleID();
+		if ( !$articleId ) {
+			$errors[] = 'Data article does not exist';
+			return;
+		}
 
 		$schemaTitle = TitleClass::newFromText( 'JsonSchema:' . $schemaName );
+		if ( !$schemaTitle || !$schemaTitle->isKnown() ) {
+			$errors[] = 'Schema article not set or valid';
+			return;
+		}
+
 		$schemaId = $schemaTitle->getArticleID();
 
 		$this->recordSchemaPage( $schemaId, $articleId );

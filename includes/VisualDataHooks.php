@@ -231,8 +231,11 @@ class VisualDataHooks implements
 			trigger_error('^^processedData ' . print_r($processedData,1) );
 
 			$schemaName = explode( 'JsonSchema:', $submittedData->schemaId )[ 1 ];
-			$databaseManager = new DatabaseManager();
-			$databaseManager->recordProperties( $schemaName, $processedData['targetTitle'], $submittedData->structuredValue, $errors );
+
+			if ( $schemaName ) {
+				$databaseManager = new DatabaseManager();
+				$databaseManager->recordProperties( $schemaName, $processedData['targetTitle'], $submittedData->structuredValue, $errors );
+			}
 		}
 	//	exit;
 	}
